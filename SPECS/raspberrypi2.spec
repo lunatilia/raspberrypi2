@@ -1,5 +1,5 @@
-%global commit_firmware_long 6e0ae774407d68659b50cfbeb9f493ed16718866
-%global commit_linux_long 6f16847710cc0502450788b9f12f0a14d3429668
+%global commit_firmware_long 5384efc5ee19d506690d56dea4922e2428addaa5
+%global commit_linux_long ae8a4ce56fcac6cfd2bf9c3bbbdd939725c1ae45
 
 ExclusiveArch: aarch64 armv7hl
 
@@ -31,7 +31,7 @@ ExclusiveArch: aarch64 armv7hl
 %endif
 
 %define kversion 6.6
-%define patchlevel 20
+%define patchlevel 25
 
 Name:           raspberrypi2
 Version:        %{kversion}.%{patchlevel}
@@ -286,6 +286,9 @@ cp $(ls -1 /boot/config-kernel-*-*|sort -V|tail -1) /boot/config-kernel.inc
 %doc /boot/LICENCE.broadcom
 
 %changelog
+* Thu Apr 11 2024 Mitsuki Shirase <maintainer@celos.dev> - 6.6.25
+- Update to version v6.6.25
+
 * Thu Apr 11 2024 Mitsuki Shirase <maintainer@celos.dev> - 6.6.20
 - Update to version v6.6.20
 - Changed the source of the kernel being used from the vanilla kernel to the Raspberry Pi kernel.
