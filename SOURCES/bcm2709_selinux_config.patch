@@ -1,26 +1,17 @@
-From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: Pablo Greco <pgreco@centosproject.org>
-Date: Fri, 7 Aug 2020 02:59:05 +0000
-Subject: [PATCH 1/2] configs 2709
-
----
- arch/arm/configs/bcm2709_defconfig | 40 ++++++++++++++++++++++++++++--
- 1 file changed, 38 insertions(+), 2 deletions(-)
-
 diff --git a/arch/arm/configs/bcm2709_defconfig b/arch/arm/configs/bcm2709_defconfig
-index 4b1f46c..537c622 100644
+index 4256f88b6..8c1f976c0 100644
 --- a/arch/arm/configs/bcm2709_defconfig
 +++ b/arch/arm/configs/bcm2709_defconfig
-@@ -1530,8 +1530,6 @@ CONFIG_NLS_KOI8_R=m
- CONFIG_NLS_KOI8_U=m
+@@ -1539,8 +1539,6 @@ CONFIG_NLS_KOI8_U=m
  CONFIG_DLM=m
+ CONFIG_KEY_DH_OPERATIONS=y
  CONFIG_SECURITY=y
 -CONFIG_SECURITY_APPARMOR=y
 -CONFIG_LSM=""
  CONFIG_CRYPTO_USER=m
  CONFIG_CRYPTO_CAST5=m
  CONFIG_CRYPTO_DES=y
-@@ -1569,3 +1567,38 @@ CONFIG_IRQSOFF_TRACER=y
+@@ -1580,3 +1578,38 @@ CONFIG_STACK_TRACER=y
  CONFIG_SCHED_TRACER=y
  CONFIG_BLK_DEV_IO_TRACE=y
  # CONFIG_UPROBE_EVENTS is not set
@@ -59,6 +50,3 @@ index 4b1f46c..537c622 100644
 +CONFIG_FW_LOADER_COMPRESS=y
 +CONFIG_FW_LOADER_COMPRESS_XZ=y
 +CONFIG_FW_LOADER_COMPRESS_ZSTD=y
--- 
-2.39.0
-

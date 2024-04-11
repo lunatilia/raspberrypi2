@@ -1,5 +1,5 @@
-%global commit_firmware_long cb9500d6021e083a182ba168fe4424e3db2494cf
-%global commit_linux_long 4fc5a03ad1d2fb811d8652be67260312fa3125fc
+%global commit_firmware_long 6e0ae774407d68659b50cfbeb9f493ed16718866
+%global commit_linux_long 6f16847710cc0502450788b9f12f0a14d3429668
 
 ExclusiveArch: aarch64 armv7hl
 
@@ -29,24 +29,19 @@ ExclusiveArch: aarch64 armv7hl
 %define local_version v7
 %define bcmmodel 2709
 %endif
-%define extra_version 1
 
-%define kversion 6.1
-%define patchlevel 31
+%define kversion 6.6
+%define patchlevel 20
 
 Name:           raspberrypi2
 Version:        %{kversion}.%{patchlevel}
-Release:        %{local_version}.%{extra_version}%{?dist}
+Release:        %{local_version}+%{?dist}
 Summary:        Specific kernel and bootcode for Raspberry Pi
 
 License:        GPLv2
 URL:            https://github.com/raspberrypi/linux
-Source0:        https://www.kernel.org/pub/linux/kernel/v6.x/linux-%{kversion}.tar.xz
+Source0:        https://github.com/raspberrypi/linux/archive/%{commit_linux_long}.tar.gz
 Source1:        https://github.com/raspberrypi/firmware/archive/%{commit_firmware_long}.tar.gz
-%if %{patchlevel} > 0
-Source2:        https://cdn.kernel.org/pub/linux/kernel/v6.x/patch-%{version}.xz
-%endif
-Source3:        rpi-6.1.x.patch
 
 BuildRequires: kmod, patch, bash, coreutils, tar
 BuildRequires: bzip2, xz, findutils, gzip, m4, perl, perl-Carp, make, diffutils, gawk
@@ -66,6 +61,7 @@ BuildRequires:  devtoolset-8-make
 # Compile with SELinux but disable per default
 Patch100:       bcm2709_selinux_config.patch
 Patch101:       bcm2711_selinux_config.patch
+Patch102:       bcm2712_selinux_config.patch
 
 %description
 Specific kernel and bootcode for Raspberry Pi
@@ -104,7 +100,7 @@ Summary:        GPU firmware for the Raspberry Pi computer
 License:        Redistributable, with restrictions; see LICENSE.broadcom
 Obsoletes:      grub, grubby, efibootmgr
 %if 0%{?rhel} >= 8
-Provides:        grubby=8.40-10
+Provides:        grubby >= 8.40-10
 %endif
 
 %description firmware
@@ -116,21 +112,20 @@ including the kernel bootloader.
 %if 0%{?rhel} == 7
 source scl_source enable devtoolset-8 || :
 %endif
-%setup -q -n linux-%{kversion}
+%setup -q -n linux-%{commit_linux_long}
 git init
 git config user.email "kernel-team@fedoraproject.org"
 git config user.name "Fedora Kernel Team"
 git config gc.auto 0
 git add .
 git commit -a -q -m "baseline"
-%if %{patchlevel} > 0
-xzcat %{SOURCE2} | patch -p1 -F1 -s
-git commit -a -q -m "%{version}"
-%endif
-git am %{SOURCE3}
 
-git am %{PATCH100}
-git am %{PATCH101}
+#git am %{PATCH100}
+#git am %{PATCH101}
+#git am %{PATCH102}
+git apply %{PATCH100}
+git apply %{PATCH101}
+git apply %{PATCH102}
 
 perl -p -i -e "s/^EXTRAVERSION.*/EXTRAVERSION = -%{release}/" Makefile
 perl -p -i -e "s/^CONFIG_LOCALVERSION=.*/CONFIG_LOCALVERSION=/" arch/%{Arch}/configs/bcm%{bcmmodel}_defconfig
@@ -156,7 +151,7 @@ source scl_source enable devtoolset-8 || :
 %endif
 export KERNEL=kernel%{armtarget}
 make bcm%{bcmmodel}_defconfig
-make %{?_smp_mflags} HOSTCFLAGS="%{?build_cflags}" HOSTLDFLAGS="%{?build_ldflags}" %{build_image} modules dtbs
+make LOCALVERSION= %{?_smp_mflags} HOSTCFLAGS="%{?build_cflags}" HOSTLDFLAGS="%{?build_ldflags}" %{build_image} modules dtbs
 
 %install
 %if 0%{?rhel} == 7
@@ -175,7 +170,7 @@ cp -p -v arch/%{Arch}/boot/dts/overlays/*.dtb* %{buildroot}/usr/share/%{name}-ke
 cp -p -v arch/%{Arch}/boot/dts/overlays/README %{buildroot}/usr/share/%{name}-kernel/%{version}-%{release}/boot/overlays
 #scripts/mkknlimg arch/%{Arch}/boot/zImage %{buildroot}/boot/kernel-%{version}-%{release}.img
 cp -p -v arch/%{Arch}/boot/%{build_image} %{buildroot}/boot/kernel-%{version}-%{release}.img
-make INSTALL_MOD_PATH=%{buildroot} modules_install
+make INSTALL_MOD_PATH=%{buildroot}/usr modules_install
 cat > %{buildroot}/boot/config-kernel-%{version}-%{release}.inc <<__EOF__
 %ifarch aarch64
 arm_64bit=1
@@ -217,8 +212,8 @@ if [ -d arch/%{Arch}/mach-bcm%{bcmmodel}/include ]; then
 fi
 cp include/generated/uapi/linux/version.h %{buildroot}$DevelDir/include/linux
 touch -r %{buildroot}$DevelDir/Makefile %{buildroot}$DevelDir/include/linux/version.h
-ln -T -s $DevelDir %{buildroot}/lib/modules/%{version}-%{release}/build --force
-ln -T -s build %{buildroot}/lib/modules/%{version}-%{release}/source --force
+ln -T -s $DevelDir %{buildroot}/usr/lib/modules/%{version}-%{release}/build --force
+ln -T -s build %{buildroot}/usr/lib/modules/%{version}-%{release}/source --force
 
 # kernel-firmware
 #rm .config
@@ -237,7 +232,7 @@ popd
 
 %files kernel%{?ksuffix}
 %defattr(-,root,root,-)
-/lib/modules/%{version}-%{release}
+/usr/lib/modules/%{version}-%{release}
 /usr/share/%{name}-kernel/%{version}-%{release}
 /usr/share/%{name}-kernel/%{version}-%{release}/boot
 /usr/share/%{name}-kernel/%{version}-%{release}/boot/*.dtb
@@ -291,6 +286,12 @@ cp $(ls -1 /boot/config-kernel-*-*|sort -V|tail -1) /boot/config-kernel.inc
 %doc /boot/LICENCE.broadcom
 
 %changelog
+* Thu Apr 11 2024 Mitsuki Shirase <maintainer@celos.dev> - 6.6.20
+- Update to version v6.6.20
+- Changed the source of the kernel being used from the vanilla kernel to the Raspberry Pi kernel.
+- Changed the release version notation from "v8.1.elN" to "v8+.elN"
+- Added a patch for the BCM2712 defconfig.
+
 * Sun Jun 04 2023 Pablo Greco <pgreco@centosproject.org> - 6.1.31
 - Update to version v6.1.31
 
