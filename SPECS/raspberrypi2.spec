@@ -1,33 +1,28 @@
 %global commit_firmware_long 5384efc5ee19d506690d56dea4922e2428addaa5
 %global commit_linux_long ae8a4ce56fcac6cfd2bf9c3bbbdd939725c1ae45
 
-ExclusiveArch: aarch64 armv7hl
+ExclusiveArch: aarch64
 
 %undefine _debugsource_packages
 
 %ifarch aarch64
 %define Arch arm64
 %define build_image Image
+%if %{with rpi5}
+%define ksuffix 5
+%define armtarget _2712
+%define local_version v8_16k
+%define bcmmodel 2712
+%define with_rpi5 1
+%else
+%define ksuffix 4
 %define armtarget 8
 %define with_rpi4 1
-%else
-%define Arch arm
-%define build_image zImage
-%define armtarget 7
-%bcond_with rpi4
-%endif
-
-%if %{with rpi4}
-%ifarch aarch64
 %define local_version v8
-%else
-%define local_version v7l
-%endif
 %define bcmmodel 2711
-%define ksuffix 4
+%endif
 %else
-%define local_version v7
-%define bcmmodel 2709
+%error "Unsupported architecture"
 %endif
 
 %define kversion 6.6
