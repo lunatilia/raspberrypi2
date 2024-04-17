@@ -1,5 +1,5 @@
-%global commit_firmware_long 5384efc5ee19d506690d56dea4922e2428addaa5
-%global commit_linux_long ae8a4ce56fcac6cfd2bf9c3bbbdd939725c1ae45
+%global commit_firmware_long c167a3336a2a770ab840e94f2cb1d379d8478c1d
+%global commit_linux_long 044dae4ac76ab3677977f432e78b29e423e8c54e
 
 ExclusiveArch: aarch64
 
@@ -26,7 +26,7 @@ ExclusiveArch: aarch64
 %endif
 
 %define kversion 6.6
-%define patchlevel 25
+%define patchlevel 26
 
 Name:           raspberrypi2
 Version:        %{kversion}.%{patchlevel}
@@ -290,6 +290,9 @@ cp $(ls -1 /boot/config-kernel-*-%{local_version}+*|sort -V|tail -1) /boot/confi
 %doc /boot/LICENCE.broadcom
 
 %changelog
+* Wed Apr 17 2024 Mitsuki Shirase <maintainer@celos.dev> - 6.6.26
+- Update to version v6.6.26
+
 * Wed Apr 17 2024 Mitsuki Shirase <maintainer@celos.dev> - 6.6.25
 - Change initramfs name from 'initramfs-${version}-${release}' to 'initramfs${armtarget}'.
 
