@@ -108,9 +108,10 @@ including the kernel bootloader.
 source scl_source enable devtoolset-8 || :
 %endif
 %setup -q -n linux-%{commit_linux_long}
+git config --global init.defaultBranch rpi-%{kversion}.y
 git init
-git config user.email "kernel-team@fedoraproject.org"
-git config user.name "Fedora Kernel Team"
+git config user.email "maintainer@celos.dev"
+git config user.name "CELOS Kernel Team"
 git config gc.auto 0
 git add .
 git commit -a -q -m "baseline"
@@ -241,7 +242,7 @@ popd
 
 
 %posttrans kernel%{?ksuffix}
-if [ -f /boot/kernel%{armtarget}.img ] || [ ! -f /boot/config-kernel.inc ];then
+if [ -f /boot/kernel%{armtarget}.img ] || [ ! -f /boot/config-kernel%{armtarget}.inc ];then
     # if nothing exists, fall back to generating the file, but don't create it
     # if we have moved to initramfs
     cp /boot/kernel-%{version}-%{release}.img /boot/kernel%{armtarget}.img
@@ -250,17 +251,25 @@ cp /usr/share/%{name}-kernel/%{version}-%{release}/boot/*.dtb /boot/
 cp /usr/share/%{name}-kernel/%{version}-%{release}/boot/overlays/*.dtb* /boot/overlays/
 cp /usr/share/%{name}-kernel/%{version}-%{release}/boot/overlays/README /boot/overlays/
 /usr/bin/dracut /boot/initramfs-%{version}-%{release}.img %{version}-%{release}
-cp /boot/config-kernel-%{version}-%{release}.inc /boot/config-kernel.inc
+if [ -f /boot/initramfs%{armtarget} ] || [ ! -f /boot/config-kernel%{armtarget}.inc ];then
+    # if nothing exists, fall back to generating the file. but don't create it
+    cp /boot/initramfs-%{version}-%{release}.img /boot/initramfs%{armtarget}
+fi
+cp /boot/config-kernel-%{version}-%{release}.inc /boot/config-kernel%{armtarget}.inc
 
 %postun kernel%{?ksuffix}
 if [ -f /boot/kernel%{armtarget}.img ];then
     #only restore kernel%{armtarget}.img if it exists, we may have moved to initramfs
-    cp $(ls -1 /boot/kernel-*-*|sort -V|tail -1) /boot/kernel%{armtarget}.img
+    cp $(ls -1 /boot/kernel-*-%{local_version}+*|sort -V|tail -1) /boot/kernel%{armtarget}.img
 fi
 cp $(ls -1d /usr/share/%{name}-kernel/*-*/|sort -V|tail -1)/boot/*.dtb /boot/
 cp $(ls -1d /usr/share/%{name}-kernel/*-*/|sort -V|tail -1)/boot/overlays/*.dtb* /boot/overlays/
 cp $(ls -1d /usr/share/%{name}-kernel/*-*/|sort -V|tail -1)/boot/overlays/README /boot/overlays/
-cp $(ls -1 /boot/config-kernel-*-*|sort -V|tail -1) /boot/config-kernel.inc
+if [ -f /boot/initramfs%{armtarget} ];then
+    #only restore initramfs%{armtarget} if it exists, we may have moved to initramfs
+    cp $(ls -1 /boot/initramfs-*-%{local_version}+*|sort -V|tail -1) /boot/initramfs%{armtarget}
+fi
+cp $(ls -1 /boot/config-kernel-*-%{local_version}+*|sort -V|tail -1) /boot/config-kernel%{armtarget}.inc
 
 
 %files kernel%{?ksuffix}-devel
@@ -281,6 +290,12 @@ cp $(ls -1 /boot/config-kernel-*-*|sort -V|tail -1) /boot/config-kernel.inc
 %doc /boot/LICENCE.broadcom
 
 %changelog
+* Wed Apr 17 2024 Mitsuki Shirase <maintainer@celos.dev> - 6.6.25
+- Change initramfs name from 'initramfs-${version}-${release}' to 'initramfs${armtarget}'.
+
+* Sun Apr 14 2024 Mitsuki Shirase <maintainer@celos.dev> - 6.6.25
+- End support for armv7 and armv7l (ARM 32bit). Add support for Raspberry Pi 5 (BCM2712).
+
 * Thu Apr 11 2024 Mitsuki Shirase <maintainer@celos.dev> - 6.6.25
 - Update to version v6.6.25
 
