@@ -11,7 +11,7 @@ ExclusiveArch: aarch64
 %if %{with rpi5}
 %define ksuffix 5
 %define armtarget _2712
-%define local_version v8_16k
+%define local_version v8.2
 %define bcmmodel 2712
 %define with_rpi5 1
 %else
@@ -27,10 +27,17 @@ ExclusiveArch: aarch64
 
 %define kversion 6.6
 %define patchlevel 26
+%define specversion %{kversion}.%{patchlevel}
+%define specrelease %{?extra_version}%{?dist}
+%define pkg_release %{local_version}+%{?dist}
+%define firmware_release git%(c=%{commit_firmware_long}; echo ${c:0:7})%{?dist}
+
+%define pkg_name raspi%{?ksuffix}
+
 
 Name:           raspberrypi2
-Version:        %{kversion}.%{patchlevel}
-Release:        %{local_version}+%{?dist}
+Version:        %{specversion}
+Release:        %{specrelease}
 Summary:        Specific kernel and bootcode for Raspberry Pi
 
 License:        GPLv2
@@ -61,21 +68,23 @@ Patch102:       bcm2712_selinux_config.patch
 %description
 Specific kernel and bootcode for Raspberry Pi
 
-%package kernel%{?ksuffix}
+%package -n %{pkg_name}-kernel
+Release:        %{pkg_release}
 Group:          System Environment/Kernel
 Summary:        The Linux kernel
 Provides:       kernel = %{version}-%{release}
 Requires:	coreutils
 #Requires:	dracut
 
-%description kernel%{?ksuffix}
+%description -n %{pkg_name}-kernel
 The kernel package contains the Linux kernel (vmlinuz), the core of any
 Linux operating system.  The kernel handles the basic functions
 of the operating system: memory allocation, process allocation, device
 input and output, etc.
 
 
-%package kernel%{?ksuffix}-devel
+%package -n %{pkg_name}-kernel-devel
+Release:        %{pkg_release}
 Group:          System Environment/Kernel
 Summary:        Development package for building kernel modules to match the kernel
 Provides:       kernel-devel = %{version}-%{release}
@@ -85,12 +94,13 @@ Requires(pre):  findutils
 Requires:       findutils
 Requires:       perl-interpreter
 
-%description kernel%{?ksuffix}-devel
+%description -n %{pkg_name}-kernel-devel
 This package provides kernel headers and makefiles sufficient to build modules
 against the kernel package.
 
 
-%package firmware
+%package -n raspi-firmware
+Release:        %{firmware_release}
 Summary:        GPU firmware for the Raspberry Pi computer
 License:        Redistributable, with restrictions; see LICENSE.broadcom
 Obsoletes:      grub, grubby, efibootmgr
@@ -98,7 +108,7 @@ Obsoletes:      grub, grubby, efibootmgr
 Provides:        grubby >= 8.40-10
 %endif
 
-%description firmware
+%description -n raspi-firmware
 This package contains the GPU firmware for the Raspberry Pi BCM2835 SOC
 including the kernel bootloader.
 
@@ -123,7 +133,7 @@ git apply %{PATCH100}
 git apply %{PATCH101}
 git apply %{PATCH102}
 
-perl -p -i -e "s/^EXTRAVERSION.*/EXTRAVERSION = -%{release}/" Makefile
+perl -p -i -e "s/^EXTRAVERSION.*/EXTRAVERSION = -%{pkg_release}/" Makefile
 perl -p -i -e "s/^CONFIG_LOCALVERSION=.*/CONFIG_LOCALVERSION=/" arch/%{Arch}/configs/bcm%{bcmmodel}_defconfig
 
 %if 0%{?rhel} >= 8
@@ -155,29 +165,29 @@ source scl_source enable devtoolset-8 || :
 %endif
 # kernel
 mkdir -p %{buildroot}/boot/overlays/
-mkdir -p %{buildroot}/usr/share/%{name}-kernel/%{version}-%{release}/boot/overlays
+mkdir -p %{buildroot}/usr/share/%{pkg_name}-kernel/%{version}-%{pkg_release}/boot/overlays
 cp -p -v COPYING %{buildroot}/boot/COPYING.linux-%{kversion}
 %ifarch aarch64
-cp -p -v arch/%{Arch}/boot/dts/broadcom/*.dtb %{buildroot}/usr/share/%{name}-kernel/%{version}-%{release}/boot
+cp -p -v arch/%{Arch}/boot/dts/broadcom/*.dtb %{buildroot}/usr/share/%{pkg_name}-kernel/%{version}-%{pkg_release}/boot
 %else
-cp -p -v arch/%{Arch}/boot/dts/*.dtb %{buildroot}/usr/share/%{name}-kernel/%{version}-%{release}/boot
+cp -p -v arch/%{Arch}/boot/dts/*.dtb %{buildroot}/usr/share/%{pkg_name}-kernel/%{version}-%{pkg_release}/boot
 %endif
-cp -p -v arch/%{Arch}/boot/dts/overlays/*.dtb* %{buildroot}/usr/share/%{name}-kernel/%{version}-%{release}/boot/overlays
-cp -p -v arch/%{Arch}/boot/dts/overlays/README %{buildroot}/usr/share/%{name}-kernel/%{version}-%{release}/boot/overlays
+cp -p -v arch/%{Arch}/boot/dts/overlays/*.dtb* %{buildroot}/usr/share/%{pkg_name}-kernel/%{version}-%{pkg_release}/boot/overlays
+cp -p -v arch/%{Arch}/boot/dts/overlays/README %{buildroot}/usr/share/%{pkg_name}-kernel/%{version}-%{pkg_release}/boot/overlays
 #scripts/mkknlimg arch/%{Arch}/boot/zImage %{buildroot}/boot/kernel-%{version}-%{release}.img
-cp -p -v arch/%{Arch}/boot/%{build_image} %{buildroot}/boot/kernel-%{version}-%{release}.img
+cp -p -v arch/%{Arch}/boot/%{build_image} %{buildroot}/boot/kernel-%{version}-%{pkg_release}.img
 make INSTALL_MOD_PATH=%{buildroot}/usr modules_install
-cat > %{buildroot}/boot/config-kernel-%{version}-%{release}.inc <<__EOF__
+cat > %{buildroot}/boot/config-kernel-%{version}-%{pkg_release}.inc <<__EOF__
 %ifarch aarch64
 arm_64bit=1
 %endif
-kernel kernel-%{version}-%{release}.img
-initramfs initramfs-%{version}-%{release}.img followkernel
+kernel kernel-%{version}-%{pkg_release}.img
+initramfs initramfs-%{version}-%{pkg_release}.img followkernel
 __EOF__
-cp .config %{buildroot}/boot/config-%{version}-%{release}
+cp .config %{buildroot}/boot/config-%{version}-%{pkg_release}
 
 # kernel-devel
-DevelDir=/usr/src/kernels/%{version}-%{release}
+DevelDir=/usr/src/kernels/%{version}-%{pkg_release}
 mkdir -p %{buildroot}$DevelDir
 # first copy everything
 cp -p -v Module.symvers System.map %{buildroot}$DevelDir
@@ -208,8 +218,8 @@ if [ -d arch/%{Arch}/mach-bcm%{bcmmodel}/include ]; then
 fi
 cp include/generated/uapi/linux/version.h %{buildroot}$DevelDir/include/linux
 touch -r %{buildroot}$DevelDir/Makefile %{buildroot}$DevelDir/include/linux/version.h
-ln -T -s $DevelDir %{buildroot}/usr/lib/modules/%{version}-%{release}/build --force
-ln -T -s build %{buildroot}/usr/lib/modules/%{version}-%{release}/source --force
+ln -T -s $DevelDir %{buildroot}/usr/lib/modules/%{version}-%{pkg_release}/build --force
+ln -T -s build %{buildroot}/usr/lib/modules/%{version}-%{pkg_release}/source --force
 
 # kernel-firmware
 #rm .config
@@ -226,45 +236,45 @@ tar -xf %{_sourcedir}/%{commit_firmware_long}.tar.gz \
     --strip-components=1
 popd
 
-%files kernel%{?ksuffix}
+%files -n %{pkg_name}-kernel
 %defattr(-,root,root,-)
-/usr/lib/modules/%{version}-%{release}
-/usr/share/%{name}-kernel/%{version}-%{release}
-/usr/share/%{name}-kernel/%{version}-%{release}/boot
-/usr/share/%{name}-kernel/%{version}-%{release}/boot/*.dtb
-/boot/config-%{version}-%{release}
+/usr/lib/modules/%{version}-%{pkg_release}
+/usr/share/%{pkg_name}-kernel/%{version}-%{pkg_release}
+/usr/share/%{pkg_name}-kernel/%{version}-%{pkg_release}/boot
+/usr/share/%{pkg_name}-kernel/%{version}-%{pkg_release}/boot/*.dtb
+/boot/config-%{version}-%{pkg_release}
 /boot/overlays/
-/usr/share/%{name}-kernel/%{version}-%{release}/boot/overlays/*
-%attr(0755,root,root) /boot/kernel-%{version}-%{release}.img
-%ghost /boot/initramfs-%{version}-%{release}.img
-/boot/config-kernel-%{version}-%{release}.inc
+/usr/share/%{pkg_name}-kernel/%{version}-%{pkg_release}/boot/overlays/*
+%attr(0755,root,root) /boot/kernel-%{version}-%{pkg_release}.img
+%ghost /boot/initramfs-%{version}-%{pkg_release}.img
+/boot/config-kernel-%{version}-%{pkg_release}.inc
 %doc /boot/COPYING.linux-%{kversion}
 
 
-%posttrans kernel%{?ksuffix}
+%posttrans -n %{pkg_name}-kernel
 if [ -f /boot/kernel%{armtarget}.img ] || [ ! -f /boot/config-kernel%{armtarget}.inc ];then
     # if nothing exists, fall back to generating the file, but don't create it
     # if we have moved to initramfs
-    cp /boot/kernel-%{version}-%{release}.img /boot/kernel%{armtarget}.img
+    cp /boot/kernel-%{version}-%{pkg_release}.img /boot/kernel%{armtarget}.img
 fi
-cp /usr/share/%{name}-kernel/%{version}-%{release}/boot/*.dtb /boot/
-cp /usr/share/%{name}-kernel/%{version}-%{release}/boot/overlays/*.dtb* /boot/overlays/
-cp /usr/share/%{name}-kernel/%{version}-%{release}/boot/overlays/README /boot/overlays/
-/usr/bin/dracut /boot/initramfs-%{version}-%{release}.img %{version}-%{release}
+cp /usr/share/%{pkg_name}-kernel/%{version}-%{pkg_release}/boot/*.dtb /boot/
+cp /usr/share/%{pkg_name}-kernel/%{version}-%{pkg_release}/boot/overlays/*.dtb* /boot/overlays/
+cp /usr/share/%{pkg_name}-kernel/%{version}-%{pkg_release}/boot/overlays/README /boot/overlays/
+/usr/bin/dracut /boot/initramfs-%{version}-%{pkg_release}.img %{version}-%{pkg_release}
 if [ -f /boot/initramfs%{armtarget} ] || [ ! -f /boot/config-kernel%{armtarget}.inc ];then
     # if nothing exists, fall back to generating the file. but don't create it
-    cp /boot/initramfs-%{version}-%{release}.img /boot/initramfs%{armtarget}
+    cp /boot/initramfs-%{version}-%{pkg_release}.img /boot/initramfs%{armtarget}
 fi
-cp /boot/config-kernel-%{version}-%{release}.inc /boot/config-kernel%{armtarget}.inc
+cp /boot/config-kernel-%{version}-%{pkg_release}.inc /boot/config-kernel%{armtarget}.inc
 
-%postun kernel%{?ksuffix}
+%postun -n %{pkg_name}-kernel
 if [ -f /boot/kernel%{armtarget}.img ];then
     #only restore kernel%{armtarget}.img if it exists, we may have moved to initramfs
     cp $(ls -1 /boot/kernel-*-%{local_version}+*|sort -V|tail -1) /boot/kernel%{armtarget}.img
 fi
-cp $(ls -1d /usr/share/%{name}-kernel/*-*/|sort -V|tail -1)/boot/*.dtb /boot/
-cp $(ls -1d /usr/share/%{name}-kernel/*-*/|sort -V|tail -1)/boot/overlays/*.dtb* /boot/overlays/
-cp $(ls -1d /usr/share/%{name}-kernel/*-*/|sort -V|tail -1)/boot/overlays/README /boot/overlays/
+cp $(ls -1d /usr/share/%{pkg_name}-kernel/*-*/|sort -V|tail -1)/boot/*.dtb /boot/
+cp $(ls -1d /usr/share/%{pkg_name}-kernel/*-*/|sort -V|tail -1)/boot/overlays/*.dtb* /boot/overlays/
+cp $(ls -1d /usr/share/%{pkg_name}-kernel/*-*/|sort -V|tail -1)/boot/overlays/README /boot/overlays/
 if [ -f /boot/initramfs%{armtarget} ];then
     #only restore initramfs%{armtarget} if it exists, we may have moved to initramfs
     cp $(ls -1 /boot/initramfs-*-%{local_version}+*|sort -V|tail -1) /boot/initramfs%{armtarget}
@@ -272,9 +282,9 @@ fi
 cp $(ls -1 /boot/config-kernel-*-%{local_version}+*|sort -V|tail -1) /boot/config-kernel%{armtarget}.inc
 
 
-%files kernel%{?ksuffix}-devel
+%files -n %{pkg_name}-kernel-devel
 %defattr(-,root,root)
-/usr/src/kernels/%{version}-%{release}
+/usr/src/kernels/%{version}-%{pkg_release}
 
 
 #%files kernel-firmware
@@ -282,7 +292,7 @@ cp $(ls -1 /boot/config-kernel-*-%{local_version}+*|sort -V|tail -1) /boot/confi
 #/lib/firmware/*
 
 
-%files firmware
+%files -n raspi-firmware
 %defattr(-,root,root,-)
 /boot/bootcode.bin
 /boot/fixup*
@@ -290,11 +300,17 @@ cp $(ls -1 /boot/config-kernel-*-%{local_version}+*|sort -V|tail -1) /boot/confi
 %doc /boot/LICENCE.broadcom
 
 %changelog
+* Sat Apr 20 2024 Mitsuki Shirase <maintainer@celos.dev> - 6.6.26-5
+- Updated local version notation for BCM2712 from "v8_16k" to "v8.2".
+- For packages targeting v8 (BCM2711), added suffix '4' to name them "raspi4-".
+- For packages targeting v8.2 (BCM2712), added suffix '5' to name them "raspi5-".
+- Firmware packages will not have a suffix regardless of target model and will be named "raspi-firmware".
+
 * Wed Apr 17 2024 Mitsuki Shirase <maintainer@celos.dev> - 6.6.26
 - Update to version v6.6.26
 
 * Wed Apr 17 2024 Mitsuki Shirase <maintainer@celos.dev> - 6.6.25
-- Change initramfs name from 'initramfs-${version}-${release}' to 'initramfs${armtarget}'.
+- Change initramfs name from 'initramfs-%{version}-%{release}' to 'initramfs${armtarget}'.
 
 * Sun Apr 14 2024 Mitsuki Shirase <maintainer@celos.dev> - 6.6.25
 - End support for armv7 and armv7l (ARM 32bit). Add support for Raspberry Pi 5 (BCM2712).
