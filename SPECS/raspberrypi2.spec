@@ -1,5 +1,5 @@
-%global commit_firmware_long c167a3336a2a770ab840e94f2cb1d379d8478c1d
-%global commit_linux_long 044dae4ac76ab3677977f432e78b29e423e8c54e
+%global commit_firmware_long 5476720d52cf579dc1627715262b30ba1242525e
+%global commit_linux_long 9c68ba121ba173dd5711b4537bfcdf82ec731725
 
 ExclusiveArch: aarch64
 
@@ -26,7 +26,7 @@ ExclusiveArch: aarch64
 %endif
 
 %define kversion 6.6
-%define patchlevel 26
+%define patchlevel 28
 %define specversion %{kversion}.%{patchlevel}
 %define specrelease %{?extra_version}%{?dist}
 %define pkg_release %{local_version}+%{?dist}
@@ -121,7 +121,7 @@ source scl_source enable devtoolset-8 || :
 git config --global init.defaultBranch rpi-%{kversion}.y
 git init
 git config user.email "maintainer@celos.dev"
-git config user.name "CELOS Kernel Team"
+git config user.name "CELOS Kernel Project"
 git config gc.auto 0
 git add .
 git commit -a -q -m "baseline"
@@ -300,6 +300,9 @@ cp $(ls -1 /boot/config-kernel-*-%{local_version}+*|sort -V|tail -1) /boot/confi
 %doc /boot/LICENCE.broadcom
 
 %changelog
+* Sun Apr 21 2024 Mitsuki Shirase <maintainer@celos.dev> - 6.6.28-1
+- Update to version v6.6.28
+
 * Sat Apr 20 2024 Mitsuki Shirase <maintainer@celos.dev> - 6.6.26-5
 - Updated local version notation for BCM2712 from "v8_16k" to "v8.2".
 - For packages targeting v8 (BCM2711), added suffix '4' to name them "raspi4-".
