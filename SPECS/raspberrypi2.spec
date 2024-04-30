@@ -1,5 +1,5 @@
-%global commit_firmware_long 5476720d52cf579dc1627715262b30ba1242525e
-%global commit_linux_long 9c68ba121ba173dd5711b4537bfcdf82ec731725
+%global commit_firmware_long 382060535985b7e75502f2fc35e316e501d77e91
+%global commit_linux_long 7c517e79b6ef29b331221829a125d816b87e8d02
 
 ExclusiveArch: aarch64
 
@@ -26,7 +26,7 @@ ExclusiveArch: aarch64
 %endif
 
 %define kversion 6.6
-%define patchlevel 28
+%define patchlevel 29
 %define specversion %{kversion}.%{patchlevel}
 %define specrelease %{?extra_version}%{?dist}
 %define pkg_release %{local_version}+%{?dist}
@@ -300,6 +300,9 @@ cp $(ls -1 /boot/config-kernel-*-%{local_version}+*|sort -V|tail -1) /boot/confi
 %doc /boot/LICENCE.broadcom
 
 %changelog
+* Tue Apr 30 2024 Mitsuki Shirase <maintainer@celos.dev> - 6.6.29-1
+- Update to version v6.6.29
+
 * Sun Apr 21 2024 Mitsuki Shirase <maintainer@celos.dev> - 6.6.28-1
 - Update to version v6.6.28
 
