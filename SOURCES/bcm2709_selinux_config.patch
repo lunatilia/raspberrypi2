@@ -1,8 +1,8 @@
 diff --git a/arch/arm/configs/bcm2709_defconfig b/arch/arm/configs/bcm2709_defconfig
-index a1271b02f..2019f38f9 100644
+index f54eaec96..02fdbbb75 100644
 --- a/arch/arm/configs/bcm2709_defconfig
 +++ b/arch/arm/configs/bcm2709_defconfig
-@@ -1541,8 +1541,6 @@ CONFIG_NLS_KOI8_U=m
+@@ -1542,8 +1542,6 @@ CONFIG_NLS_KOI8_U=m
  CONFIG_DLM=m
  CONFIG_KEY_DH_OPERATIONS=y
  CONFIG_SECURITY=y
@@ -11,7 +11,7 @@ index a1271b02f..2019f38f9 100644
  CONFIG_CRYPTO_USER=m
  CONFIG_CRYPTO_CAST5=m
  CONFIG_CRYPTO_DES=y
-@@ -1582,3 +1580,38 @@ CONFIG_STACK_TRACER=y
+@@ -1583,3 +1581,38 @@ CONFIG_STACK_TRACER=y
  CONFIG_SCHED_TRACER=y
  CONFIG_BLK_DEV_IO_TRACE=y
  # CONFIG_UPROBE_EVENTS is not set

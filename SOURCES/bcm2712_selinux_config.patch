@@ -1,5 +1,5 @@
 diff --git a/arch/arm64/configs/bcm2712_defconfig b/arch/arm64/configs/bcm2712_defconfig
-index 67e9a9703..a16c750e2 100644
+index 67e9a9703..37c050b85 100644
 --- a/arch/arm64/configs/bcm2712_defconfig
 +++ b/arch/arm64/configs/bcm2712_defconfig
 @@ -1626,8 +1626,6 @@ CONFIG_NLS_KOI8_U=m
@@ -45,7 +45,7 @@ index 67e9a9703..a16c750e2 100644
 +CONFIG_CRYPTO_LIB_POLY1305=m
 +CONFIG_CRYPTO_POLY1305_NEON=m
 +# CONFIG_EFI_CUSTOM_SSDT_OVERLAYS is not set
-+# CONFIG_WIREGUARD_DEBUG is not set
++# # CONFIG_WIREGUARD_DEBUG is not set
 +CONFIG_WIREGUARD=m
 +CONFIG_BLK_DEV_RBD=m
 +CONFIG_FW_LOADER_COMPRESS=y
