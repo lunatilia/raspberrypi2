@@ -1,5 +1,5 @@
-%global commit_firmware_long bf122227344fe9d7ecc5db6c0bf4bb0bd8ca9844
-%global commit_linux_long cf64a1dfecc2dc418efdd61701c1a4b185ab4761
+%global commit_firmware_long 482750873c8ab9b5dabe2f29ccabdd4ef8c4b98d
+%global commit_linux_long f8d59c3e8011e3a58ef18871959b847c96e4d84f
 
 # Disable debuginfo, since we package a stripped upstream binary.
 %global debug_package %{nil}
@@ -29,7 +29,7 @@ ExclusiveArch: aarch64
 %endif
 
 %define kversion 6.6
-%define patchlevel 47
+%define patchlevel 60
 %define specversion %{kversion}.%{patchlevel}
 %define specrelease %{?extra_version}%{?dist}
 %define pkg_release %{local_version}+%{?dist}
@@ -303,6 +303,9 @@ cp $(ls -1 /boot/config-kernel-*-%{local_version}+*|sort -V|tail -1) /boot/confi
 %doc /boot/LICENCE.broadcom
 
 %changelog
+* Fri Nov 15 2024 Mitsuki Shirase <maintainer@celos.dev> - 6.6.60-1
+- Update to version v6.6.60
+
 * Sat Aug 31 2024 Mitsuki Shirase <maintainer@celos.dev> - 6.6.47-1
 - Update to version v6.6.47
 - Disable debuginfo package.
