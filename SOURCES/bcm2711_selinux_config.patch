@@ -1,9 +1,9 @@
 diff --git a/arch/arm/configs/bcm2711_defconfig b/arch/arm/configs/bcm2711_defconfig
-index e3ea48ceb..74702032a 100644
+index 4c2317e4d..98f81b373 100644
 --- a/arch/arm/configs/bcm2711_defconfig
 +++ b/arch/arm/configs/bcm2711_defconfig
-@@ -1588,8 +1588,6 @@ CONFIG_NLS_KOI8_U=m
- CONFIG_DLM=m
+@@ -1648,8 +1648,6 @@ CONFIG_DLM=m
+ CONFIG_UNICODE=m
  CONFIG_KEY_DH_OPERATIONS=y
  CONFIG_SECURITY=y
 -CONFIG_SECURITY_APPARMOR=y
@@ -11,11 +11,11 @@ index e3ea48ceb..74702032a 100644
  CONFIG_CRYPTO_USER=m
  CONFIG_CRYPTO_AES=m
  CONFIG_CRYPTO_CAST5=m
-@@ -1630,3 +1628,38 @@ CONFIG_STACK_TRACER=y
- CONFIG_SCHED_TRACER=y
+@@ -1692,3 +1690,38 @@ CONFIG_SCHED_TRACER=y
+ CONFIG_FTRACE_SYSCALLS=y
  CONFIG_BLK_DEV_IO_TRACE=y
  # CONFIG_UPROBE_EVENTS is not set
-+#
++
 +# CentOS added
 +CONFIG_AUDIT=y
 +CONFIG_NETLABEL=y
@@ -51,11 +51,11 @@ index e3ea48ceb..74702032a 100644
 +CONFIG_FW_LOADER_COMPRESS_XZ=y
 +CONFIG_FW_LOADER_COMPRESS_ZSTD=y
 diff --git a/arch/arm64/configs/bcm2711_defconfig b/arch/arm64/configs/bcm2711_defconfig
-index f197a16b5..e26b0725f 100644
+index 65d1c6a10..acc914e84 100644
 --- a/arch/arm64/configs/bcm2711_defconfig
 +++ b/arch/arm64/configs/bcm2711_defconfig
-@@ -1643,8 +1643,6 @@ CONFIG_NLS_KOI8_U=m
- CONFIG_DLM=m
+@@ -1724,8 +1724,6 @@ CONFIG_DLM=m
+ CONFIG_UNICODE=m
  CONFIG_KEY_DH_OPERATIONS=y
  CONFIG_SECURITY=y
 -CONFIG_SECURITY_APPARMOR=y
@@ -63,11 +63,11 @@ index f197a16b5..e26b0725f 100644
  CONFIG_CRYPTO_USER=m
  CONFIG_CRYPTO_CRYPTD=m
  CONFIG_CRYPTO_AES=m
-@@ -1695,3 +1693,39 @@ CONFIG_SCHED_TRACER=y
+@@ -1778,3 +1776,39 @@ CONFIG_FTRACE_SYSCALLS=y
  CONFIG_BLK_DEV_IO_TRACE=y
  # CONFIG_UPROBE_EVENTS is not set
  # CONFIG_STRICT_DEVMEM is not set
-+#
++
 +# CentOS added
 +CONFIG_AUDIT=y
 +CONFIG_NETLABEL=y

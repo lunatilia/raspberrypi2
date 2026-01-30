@@ -1,9 +1,9 @@
 diff --git a/arch/arm64/configs/bcm2712_defconfig b/arch/arm64/configs/bcm2712_defconfig
-index 3e978f7e3..a68c6140e 100644
+index 6e561d41c..02e5e49ce 100644
 --- a/arch/arm64/configs/bcm2712_defconfig
 +++ b/arch/arm64/configs/bcm2712_defconfig
-@@ -1646,8 +1646,6 @@ CONFIG_NLS_KOI8_U=m
- CONFIG_DLM=m
+@@ -1726,8 +1726,6 @@ CONFIG_DLM=m
+ CONFIG_UNICODE=m
  CONFIG_KEY_DH_OPERATIONS=y
  CONFIG_SECURITY=y
 -CONFIG_SECURITY_APPARMOR=y
@@ -11,11 +11,11 @@ index 3e978f7e3..a68c6140e 100644
  CONFIG_CRYPTO_USER=m
  CONFIG_CRYPTO_CRYPTD=m
  CONFIG_CRYPTO_AES=m
-@@ -1698,3 +1696,39 @@ CONFIG_SCHED_TRACER=y
+@@ -1780,3 +1778,39 @@ CONFIG_FTRACE_SYSCALLS=y
  CONFIG_BLK_DEV_IO_TRACE=y
  # CONFIG_UPROBE_EVENTS is not set
  # CONFIG_STRICT_DEVMEM is not set
-+#
++
 +# CentOS added
 +CONFIG_AUDIT=y
 +CONFIG_NETLABEL=y

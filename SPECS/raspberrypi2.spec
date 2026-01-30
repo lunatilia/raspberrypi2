@@ -1,5 +1,5 @@
-%global commit_firmware_long 482750873c8ab9b5dabe2f29ccabdd4ef8c4b98d
-%global commit_linux_long f8d59c3e8011e3a58ef18871959b847c96e4d84f
+%global commit_firmware_long 8afbe608658d2ad0093df191afb6135d6a8326bc
+%global commit_linux_long 5341e6a36944546b4edf717d5a116ebdfb997743
 
 # Disable debuginfo, since we package a stripped upstream binary.
 %global debug_package %{nil}
@@ -28,8 +28,8 @@ ExclusiveArch: aarch64
 %error "Unsupported architecture"
 %endif
 
-%define kversion 6.6
-%define patchlevel 60
+%define kversion 6.12
+%define patchlevel 67
 %define specversion %{kversion}.%{patchlevel}
 %define specrelease %{?extra_version}%{?dist}
 %define pkg_release %{local_version}+%{?dist}
@@ -56,6 +56,7 @@ BuildRequires: elfutils-devel zlib-devel binutils-devel newt-devel python3-devel
 BuildRequires: audit-libs-devel
 BuildRequires: pciutils-devel gettext ncurses-devel
 BuildRequires: openssl-devel
+BuildRequires: pkcs11-provider
 %if 0%{?rhel} == 7
 BuildRequires:  devtoolset-8-build
 BuildRequires:  devtoolset-8-binutils
@@ -145,9 +146,9 @@ perl -p -i -e "s/^CONFIG_LOCALVERSION=.*/CONFIG_LOCALVERSION=/" arch/%{Arch}/con
 # -p preserves timestamps
 # -n prevents creating ~backup files
 # -i specifies the interpreter for the shebang
-pathfix.py -pni "%{__python3} %{py3_shbang_opts}" scripts/
-pathfix.py -pni "%{__python3} %{py3_shbang_opts}" scripts/diffconfig scripts/bloat-o-meter scripts/show_delta scripts/jobserver-exec
-pathfix.py -pni "%{__python3} %{py3_shbang_opts}" tools/ tools/perf/scripts/python/*.py tools/kvm/kvm_stat/kvm_stat scripts/clang-tools/*.py
+python3 /usr/lib/rpm/redhat/pathfix.py -pni "%{__python3} %{py3_shbang_opts}" scripts/
+python3 /usr/lib/rpm/redhat/pathfix.py -pni "%{__python3} %{py3_shbang_opts}" scripts/diffconfig scripts/bloat-o-meter scripts/show_delta scripts/jobserver-exec
+python3 /usr/lib/rpm/redhat/pathfix.py -pni "%{__python3} %{py3_shbang_opts}" tools/ tools/perf/scripts/python/*.py tools/kvm/kvm_stat/kvm_stat scripts/clang-tools/*.py
 %endif
 
 # This Prevents scripts/setlocalversion from mucking with our version numbers.
@@ -303,6 +304,12 @@ cp $(ls -1 /boot/config-kernel-*-%{local_version}+*|sort -V|tail -1) /boot/confi
 %doc /boot/LICENCE.broadcom
 
 %changelog
+* Fri Jan 30 2026 Mitsuki Shirase <mainainer@celos.dev> - 6.12.67-1
+- Update to version v6.12.67
+
+* Wed May 28 2025 Mitsuki Shirase <maintainer@celos.dev> - 6.12.30-1
+- Update to version v6.12.30
+
 * Fri Nov 15 2024 Mitsuki Shirase <maintainer@celos.dev> - 6.6.60-1
 - Update to version v6.6.60
 
